@@ -18,6 +18,9 @@ class CreateTodosTable extends Migration
             $table->string('title');
             $table->boolean('completed')->default(false);
             $table->timestamps();
+            if (!Schema::hasColumn('todos', 'user_id')){
+                $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            }
         });
     }
 
@@ -28,6 +31,11 @@ class CreateTodosTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('todos');
+    Schema::table('todos', function (Blueprint $table) {
+        if (Schema::hasColumn('todos', 'user_id')) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+        }
+    });
     }
 }
